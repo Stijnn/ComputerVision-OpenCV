@@ -1,20 +1,76 @@
 // 1.4_Thresholding_With_Slider.cpp : This file contains the 'main' function. Program execution begins and ends there.
 //
-
+#include <opencv2/opencv.hpp>
+#include "opencv2/imgproc/imgproc.hpp" 
+#include "opencv2/highgui/highgui.hpp"
 #include <iostream>
+#include <string>
 
-int main()
+using namespace cv;
+using namespace std;
+
+/// Globale Variabelen voor de slider 
+const int threshold_slider_max = 255;
+int threshold_slider = 100;
+int thresholdvalue = 100;
+
+Mat gray_image;
+Mat binaryx;
+
+
+// Callback functie voor afhandeling trackbar events
+void on_trackbar(int, void*)
 {
-    std::cout << "Hello World!\n";
+	// waarde ophalen van de slider
+	thresholdvalue = threshold_slider;
+
+	// met verkregen waarde een operatie uitvoeren
+	threshold(gray_image, binaryx, thresholdvalue, 1, CV_THRESH_BINARY);
+
+	// nieuwe resultaat tonen
+	imshow("binair beeld", binaryx * 255);
 }
 
-// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
-// Debug program: F5 or Debug > Start Debugging menu
 
-// Tips for Getting Started: 
-//   1. Use the Solution Explorer window to add/manage files
-//   2. Use the Team Explorer window to connect to source control
-//   3. Use the Output window to see build output and other messages
-//   4. Use the Error List window to view errors
-//   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
-//   6. In the future, to open this project again, go to File > Open > Project and select the .sln file
+
+int main(int argc, char* argv[])
+{
+
+	// zie: project properties - configuration properties - debugging - command arguments
+	if (argc != 2)
+	{
+		cout << "NB! Geef als command argument volledige padnaam van de imagefile mee" << endl;
+		return -1;
+	}
+	else cout << "De imagefile = " << argv[1] << endl;
+
+	// Lees de afbeelding in
+	Mat image;
+	image = imread(argv[1], CV_LOAD_IMAGE_COLOR);
+	if (!image.data)
+	{
+		cout << "Could not open or find the image" << std::endl;
+		return -1;
+	}
+
+	// De afbeelding converteren naar een grijswaarde afbeelding
+	cvtColor(image, gray_image, CV_BGR2GRAY);
+
+	// Converteren naar grijswaarde afbeelding
+	cout << "Imagefile: " << argv[1] << " met succes geconverteerd naar grijswaarde beeld." << endl;
+
+	namedWindow("Grijswaarde Beeld", WINDOW_AUTOSIZE);
+	imshow("Grijswaarde Beeld", gray_image);
+	waitKey(0);
+
+	/// Initialisatie slider waarde
+	namedWindow("binair beeld", WINDOW_AUTOSIZE);
+	createTrackbar("Threshold", "binair beeld", &threshold_slider, threshold_slider_max, on_trackbar);
+
+	// Rechtstreeks aanroepen van de callback functie om het eerste beeld te krijgen
+	on_trackbar(threshold_slider, 0);
+
+	waitKey(0);
+
+
+}

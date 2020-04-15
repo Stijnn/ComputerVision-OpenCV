@@ -1,20 +1,55 @@
 // 1.3_Thresholding_Of_GrayValue.cpp : This file contains the 'main' function. Program execution begins and ends there.
 //
-
+#include <opencv2/opencv.hpp>
+#include "opencv2/imgproc/imgproc.hpp" 
+#include "opencv2/highgui/highgui.hpp"
 #include <iostream>
+#include <string>
 
-int main()
+using namespace cv;
+using namespace std;
+
+int main(int argc, char* argv[])
 {
-    std::cout << "Hello World!\n";
+	// zie: project properties - configuration properties - debugging - command arguments
+	if (argc != 2)
+	{
+		cout << "NB! Geef als command argument volledige padnaam van de imagefile mee" << endl;
+		return -1;
+	}
+	else cout << "De imagefile = " << argv[1] << endl;
+
+	// Lees de afbeelding in
+	Mat image;
+	image = imread(argv[1], CV_LOAD_IMAGE_COLOR);
+	if (!image.data)
+	{
+		cout << "Could not open or find the image" << std::endl;
+		return -1;
+	}
+
+	// De afbeelding converteren naar een grijswaarde afbeelding
+	Mat gray_image;
+	cvtColor(image, gray_image, CV_BGR2GRAY);
+
+	// Converteren naar grijswaarde afbeelding
+	cout << "Imagefile: " << argv[1] << " met succes geconverteerd naar grijswaarde beeld." << endl;
+
+	// Grijswaarde afbeelding thresholden
+	Mat binaryx;
+	threshold(gray_image, binaryx, 100, 1, CV_THRESH_BINARY);
+
+	namedWindow("Grijswaarde Beeld", WINDOW_AUTOSIZE);
+	imshow("Grijswaarde Beeld", gray_image);
+	waitKey(0);
+
+	namedWindow("Threshold Binary", WINDOW_AUTOSIZE);
+	imshow("Threshold Binary", 255 * binaryx);
+	waitKey(0);
+
+	// Saven op disk om het resultaat in VisionLab nader te kunnen bekijken
+	imwrite("c:\\dump\\binairbeeld.bmp", binaryx);
+
+	//waitKey(0);
+
 }
-
-// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
-// Debug program: F5 or Debug > Start Debugging menu
-
-// Tips for Getting Started: 
-//   1. Use the Solution Explorer window to add/manage files
-//   2. Use the Team Explorer window to connect to source control
-//   3. Use the Output window to see build output and other messages
-//   4. Use the Error List window to view errors
-//   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
-//   6. In the future, to open this project again, go to File > Open > Project and select the .sln file
