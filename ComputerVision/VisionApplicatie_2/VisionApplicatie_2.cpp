@@ -6,6 +6,8 @@
 #include "opencv2/highgui/highgui.hpp"
 #include <iostream>
 #include <string>
+#include <Windows.h>
+#include "BlobDetection.h"
 
 using namespace cv;
 using namespace std;
@@ -33,6 +35,8 @@ int main(int argc, char* argv[])
 	// Continue loop waarin een beeld wordt opgehaald en wordt getoond in het window
 	Mat frame;
 
+	//int keyInput = waitKey(1);
+
 	while (1)
 	{
 
@@ -48,8 +52,17 @@ int main(int argc, char* argv[])
 			break;
 		}
 
+		if (waitKey(1) == 13) {
+			// Window maken waarin de objecten getoond worden met de hoeveelheid blobs.
+			cout << "Enter key is pressed by user" << endl;
+			BlobDetection::blobDetect(frame);
+			namedWindow("Blob", CV_WINDOW_AUTOSIZE);
+		}
+
 		// Het tonen van grijswaarde beeld
 		imshow("MyVideo", frame);
+
+
 
 		//  Wacht 30 ms op ESC-toets. Als ESC-toets is ingedrukt verlaat dan de loop
 		if (waitKey(1) == 27)

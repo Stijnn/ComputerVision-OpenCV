@@ -153,9 +153,6 @@
     <ClCompile Include="1.5_Demo_BLOB.cpp" />
     <ClCompile Include="blobdetectionavans.cpp" />
   </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="blobdetectionavans.h" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

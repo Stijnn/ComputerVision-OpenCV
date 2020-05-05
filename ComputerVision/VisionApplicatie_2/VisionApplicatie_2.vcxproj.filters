@@ -15,11 +15,16 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="1.5_Demo_BLOB.cpp">
+    <ClCompile Include="VisionApplicatie_2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="blobdetectionavans.cpp">
+    <ClCompile Include="BlobDetection.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="BlobDetection.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

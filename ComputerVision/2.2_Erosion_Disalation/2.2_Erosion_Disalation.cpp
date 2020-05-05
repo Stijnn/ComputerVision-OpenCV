@@ -1,20 +1,78 @@
 // 2.2_Erosion_Disalation.cpp : This file contains the 'main' function. Program execution begins and ends there.
 //
+// Informatie over deze operaties: http://docs.opencv.org/doc/tutorials/imgproc/erosion_dilatation/erosion_dilatation.html
+// Jan Oostindie, dd 16-9-2015
 
-#include <iostream>
+#include "opencv2/imgproc/imgproc.hpp"
+#include "opencv2/highgui/highgui.hpp"
+#include <stdlib.h>
+#include <stdio.h>
 
-int main()
+using namespace cv;
+
+int erosion_elem = 0;
+int erosion_size = 0;
+int dilation_elem = 0;
+int dilation_size = 0;
+int const max_elem = 2;
+int const max_kernel_size = 21;
+
+int main(int argc, char** argv)
 {
-    std::cout << "Hello World!\n";
+	// src = bronafbeelding
+	// erosion_dst = resultaat na erosion
+	// dilation_dst = resultaat na dilation
+	Mat src, erosion_dst, dilation_dst;
+
+	// Inladen van een afbeelding
+	src = imread(argv[1]);
+
+	// Controle of de afbeelding in orde is.
+	if (!src.data)
+	{
+		return -1;
+	}
+
+	// De afbeelding converteren naar een grijswaarde afbeelding
+	Mat gray_image;
+	cvtColor(src, gray_image, CV_BGR2GRAY);
+
+	// Grijswaarde afbeelding thresholden
+	Mat binaryx;
+	threshold(gray_image, binaryx, 190, 1, CV_THRESH_BINARY_INV);
+
+	namedWindow("Gray Image", WINDOW_AUTOSIZE);
+	imshow("Gray Image", gray_image);
+	waitKey(0);
+
+	//namedWindow("Binary Image", WINDOW_AUTOSIZE);
+	imshow("Binary Image", binaryx * 255);
+	waitKey(0);
+
+	// StructuurElement maken
+	// Info getStructuringElement: http://docs.opencv.org/modules/imgproc/doc/filtering.html
+
+	Mat element = getStructuringElement(MORPH_RECT, Size(3, 3), Point(-1, -1));
+
+	// 10x Dilation toepassen
+	for (int i = 1; i < 10; i++) {
+		dilate(binaryx, dilation_dst, element);
+
+		imshow("Dilation", dilation_dst * 255);
+		binaryx = dilation_dst;
+	}
+
+	waitKey(0);
+
+	// 10x erosion toepassen
+	for (int i = 1; i < 10; i++) {
+		erode(binaryx, erosion_dst, element);
+
+		imshow("Erosion", erosion_dst * 255);
+		binaryx = erosion_dst;
+	}
+	waitKey(0);
+
+	return 0;
 }
 
-// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
-// Debug program: F5 or Debug > Start Debugging menu
-
-// Tips for Getting Started: 
-//   1. Use the Solution Explorer window to add/manage files
-//   2. Use the Team Explorer window to connect to source control
-//   3. Use the Output window to see build output and other messages
-//   4. Use the Error List window to view errors
-//   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
-//   6. In the future, to open this project again, go to File > Open > Project and select the .sln file

@@ -1,20 +1,50 @@
-// 2.3_Distance_Transform.cpp : This file contains the 'main' function. Program execution begins and ends there.
-//
+#include "opencv2/imgproc/imgproc.hpp"
+#include "opencv2/highgui/highgui.hpp"
+#include <stdlib.h>
+#include <stdio.h>
 
-#include <iostream>
+using namespace cv;
 
-int main()
+
+int main(int argc, char** argv)
 {
-    std::cout << "Hello World!\n";
+	// src = bronafbeelding
+	Mat src;
+
+	// Inladen van een afbeelding
+	src = imread(argv[1]);
+
+	// Controle of de afbeelding in orde is.
+	if (!src.data)
+	{
+		return -1;
+	}
+
+	// De afbeelding converteren naar een grijswaarde afbeelding
+	Mat gray_image;
+	cvtColor(src, gray_image, CV_BGR2GRAY);
+
+	// Grijswaarde afbeelding thresholden
+	// NB: Aanpassen voor de afbeelding die je gebruikt
+	Mat binaryx;
+	threshold(gray_image, binaryx, 190, 1, CV_THRESH_BINARY_INV);
+
+	namedWindow("Gray Image", WINDOW_AUTOSIZE);
+	imshow("Gray Image", gray_image);
+	waitKey(0);
+
+	//namedWindow("Binary Image", WINDOW_AUTOSIZE);
+	imshow("Binary Image", binaryx * 255);
+	waitKey(0);
+
+	// Distance transform
+	Mat dist;
+	distanceTransform(binaryx, dist, DIST_L2, 3);
+	// Normaliseren over de range {0.0, 1.0}
+	normalize(dist, dist, 0, 1.0, NORM_MINMAX);
+	imshow("Distance Transform Image", dist);
+
+	waitKey(0);
+
+	return 0;
 }
-
-// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
-// Debug program: F5 or Debug > Start Debugging menu
-
-// Tips for Getting Started: 
-//   1. Use the Solution Explorer window to add/manage files
-//   2. Use the Team Explorer window to connect to source control
-//   3. Use the Output window to see build output and other messages
-//   4. Use the Error List window to view errors
-//   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
-//   6. In the future, to open this project again, go to File > Open > Project and select the .sln file
