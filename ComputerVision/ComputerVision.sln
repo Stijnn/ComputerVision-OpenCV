@@ -13,6 +13,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "1.4_Thresholding_With_Slide
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "1.5_Demo_BLOB", "1.5_Demo_BLOB\1.5_Demo_BLOB.vcxproj", "{D54E196F-80CA-4C52-8709-4E7404FB5D38}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "2.1_Camera", "2.1_Camera\2.1_Camera.vcxproj", "{54A37D4D-A053-46CD-B3F1-EDDA137564AA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -61,6 +63,14 @@ Global
 		{D54E196F-80CA-4C52-8709-4E7404FB5D38}.Release|x64.Build.0 = Release|x64
 		{D54E196F-80CA-4C52-8709-4E7404FB5D38}.Release|x86.ActiveCfg = Release|Win32
 		{D54E196F-80CA-4C52-8709-4E7404FB5D38}.Release|x86.Build.0 = Release|Win32
+		{54A37D4D-A053-46CD-B3F1-EDDA137564AA}.Debug|x64.ActiveCfg = Debug|x64
+		{54A37D4D-A053-46CD-B3F1-EDDA137564AA}.Debug|x64.Build.0 = Debug|x64
+		{54A37D4D-A053-46CD-B3F1-EDDA137564AA}.Debug|x86.ActiveCfg = Debug|Win32
+		{54A37D4D-A053-46CD-B3F1-EDDA137564AA}.Debug|x86.Build.0 = Debug|Win32
+		{54A37D4D-A053-46CD-B3F1-EDDA137564AA}.Release|x64.ActiveCfg = Release|x64
+		{54A37D4D-A053-46CD-B3F1-EDDA137564AA}.Release|x64.Build.0 = Release|x64
+		{54A37D4D-A053-46CD-B3F1-EDDA137564AA}.Release|x86.ActiveCfg = Release|Win32
+		{54A37D4D-A053-46CD-B3F1-EDDA137564AA}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -11,6 +11,30 @@
 using namespace cv;
 using namespace std;
 
+Mat gray_image;
+Mat binaryx;
+
+/// Globale Variabelen voor de slider 
+const int threshold_slider_max = 255;
+int thresholdvalue = 100;
+int threshold_slider = 100;
+//globale variabelen
+int minArea = 15000;
+int maxArea = 2000000;
+
+// Callback functie voor afhandeling trackbar events
+void on_trackbar(int, void*)
+{
+	// waarde ophalen van de slider
+	thresholdvalue = threshold_slider;
+
+	// met verkregen waarde een operatie uitvoeren
+	threshold(gray_image, binaryx, thresholdvalue, 1, CV_THRESH_BINARY);
+
+	// nieuwe resultaat tonen
+	imshow("binair beeld", binaryx * 255);
+}
+
 int main(int argc, char* argv[])
 {
 	// zie: project properties - configuration properties - debugging - command arguments
@@ -94,12 +118,17 @@ int main(int argc, char* argv[])
 	// Met de functie labelBLOBsInfo kun je ook een threshold instellen voor de oppervlakte
 	// van de BLOBs.
 
+	namedWindow("binair beeld", WINDOW_AUTOSIZE);
+	createTrackbar("Max", "Display", &maxArea, 200000, on_trackbar);
+	createTrackbar("Min", "Display", &minArea, 200000, on_trackbar);
+
+	// Rechtstreeks aanroepen van de callback functie om het eerste beeld te krijgen
+	on_trackbar(minArea, 0);
+
 	Mat labeledImage3;
 	vector<Point2d*> firstpixelVec3;
 	vector<Point2d*> posVec3;
 	vector<int> areaVec3;
-	int minArea = 15000;
-	int maxArea = 16000;
 	labelBLOBsInfo(binary16S, labeledImage3,
 		firstpixelVec3, posVec3, areaVec3, minArea, maxArea);
 	show16SImageStretch(labeledImage3, "Labeled Image 3");
