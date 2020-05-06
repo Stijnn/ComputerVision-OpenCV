@@ -58,7 +58,7 @@ int BlobDetection::blobDetect(Mat image)
 	// the size of the circle corresponds to the size of blob
 
 	Mat im_with_keypoints;
-	drawKeypoints(im, keypoints, im_with_keypoints, Scalar(0, 0, 255), DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
+	drawKeypoints(im, keypoints, im_with_keypoints, Scalar(0, 155, 255), DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
 
 	// Show blobs
 	imshow("keypoints", im_with_keypoints);
