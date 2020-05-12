@@ -10,128 +10,139 @@
 #include "BlobDetection.h"
 #include "blobdetectionavans.h"
 
+#include <sstream>
+#include <thread>
+
+#define WIN_1_NAME "Live Camera Feed"
+#define WIN_2_NAME "Live Camera Feed (Gray)"
+#define WIN_3_NAME "Live Threshold Preview"
+#define WIN_4_NAME "Snapshot Detection Preview"
+
 using namespace cv;
-using namespace std;
+
+int g_ThresholdValue = 230;
+int g_MinArea = 200, g_MaxArea = 7000;
+bool g_SnapshotThreadRunning = true;
+
+bool converted = false;
+Mat convertedFrame;
+
+void show_thread()
+{
+	while (g_SnapshotThreadRunning)
+	{
+		Mat					snapshotImage;
+		vector<Point2d*>	firstPixelCollection;
+		vector<Point2d*>	centerPointCollection;
+		vector<int>			areaCollection;
+
+		if (converted)
+		{
+			cout << "Total number of BLOBs " << 
+				labelBLOBsInfo
+				(
+					convertedFrame, 
+					snapshotImage, 
+					firstPixelCollection, 
+					centerPointCollection, 
+					areaCollection, 
+					g_MinArea, 
+					g_MaxArea
+				) 
+			<< endl;
+
+			int totalFound = 0;
+			if (areaCollection.size() > 0)
+			{
+				int smallest	= areaCollection[0];
+				int total		= areaCollection[0];
+				for (size_t i = 1; i < areaCollection.size(); i++)
+				{
+					total += areaCollection[i];
+					smallest = smallest < areaCollection[i] ? smallest : areaCollection[i];
+				}
+
+				totalFound = (total / smallest);
+			}
+
+			for (size_t i = 0; i < centerPointCollection.size(); i++)
+			{
+				circle(snapshotImage, Point(centerPointCollection[i]->x, centerPointCollection[i]->y), 25, 1);
+			}
+
+			std::ostringstream oss;
+			oss << "Blobs detected: ";
+			oss << totalFound;
+			std::string copyOfStr = oss.str();
+
+			putText(snapshotImage, cv::String(copyOfStr), Point(10, 20), CV_FONT_HERSHEY_SIMPLEX, 0.75f, Scalar(1, 0, 0, 1));
+
+			show16SImageStretch(snapshotImage, WIN_4_NAME);
+		}
+	}
+}
 
 int main(int argc, char* argv[])
 {
-	// Open de camera met nummer 1 in lijst (red.: nr 0 was bij mij de camera in de klep van mijn laptop)  
 	VideoCapture cap(1);
-
-	// Controle of de camera wordt herkend.
 	if (!cap.isOpened())
 	{
 		cout << "Cannot open the video cam" << endl;
 		return -1;
 	}
 
-	// Breedte en hooogte van de frames die de camera genereert ophalen. 
+	std::thread blobshowThread(show_thread);
+
 	double dWidth = cap.get(CV_CAP_PROP_FRAME_WIDTH);
 	double dHeight = cap.get(CV_CAP_PROP_FRAME_HEIGHT);
 	cout << "Frame size : " << dWidth << " x " << dHeight << endl;
 
-	// Window maken waarin de beelden "live" getoond worden
-	namedWindow("MyVideo", CV_WINDOW_AUTOSIZE);
+	namedWindow(WIN_1_NAME, CV_WINDOW_AUTOSIZE);
+	namedWindow(WIN_2_NAME, CV_WINDOW_AUTOSIZE);
+	namedWindow(WIN_3_NAME, CV_WINDOW_AUTOSIZE);
 
-	// Continue loop waarin een beeld wordt opgehaald en wordt getoond in het window
+	createTrackbar(		"Threshold"	, WIN_3_NAME, &g_ThresholdValue	, 255		);
+	createTrackbar(		"Min Area"	, WIN_3_NAME, &g_MinArea		, 20000		);
+	createTrackbar(		"Max Area"	, WIN_3_NAME, &g_MaxArea		, 100000	);
+
 	Mat frame;
-
-	//int keyInput = waitKey(1);
-
-	while (1)
+	while (g_SnapshotThreadRunning)
 	{
-
-		// Lees een nieuw frame
 		bool bSuccess = cap.read(frame);
-
 		flip(frame, frame, 3);
-
-		// Controlleer of het frame goed gelezen is.
 		if (!bSuccess)
 		{
 			cout << "Cannot read a frame from video stream" << endl;
 			break;
 		}
 
-		if (waitKey(1) == 13) {
-			// Window maken waarin de objecten getoond worden met de hoeveelheid blobs.
-			cout << "Enter key is pressed by user" << endl;
-			//SIMPEL BLOB DETECTION.
-			//BlobDetection::blobDetect(frame);
-			
-			// De afbeelding converteren naar een grijswaarde afbeelding
-			Mat gray_image;
-			cvtColor(frame, gray_image, CV_BGR2GRAY);
+		imshow(WIN_1_NAME, frame);
 
-			// Converteren naar grijswaarde afbeelding
-			//cout << "Imagefile: " << argv[1] << " met succes geconverteerd naar grijswaarde beeld." << endl;
+		Mat gray_image;
+		cvtColor(frame, gray_image, CV_BGR2GRAY);
+		imshow(WIN_2_NAME, gray_image);
 
-			//////////////////////////////////////////////////////////////////////////
+		Mat binaryImage;
+		threshold(gray_image, binaryImage, g_ThresholdValue, 1, CV_THRESH_BINARY_INV);
 
-			// Grijswaarde afbeelding thresholden
-			Mat binaryImage;
-			int thresholdvalue = 20;
-			threshold(gray_image, binaryImage, thresholdvalue, 1, CV_THRESH_BINARY_INV);
-			namedWindow("Original", WINDOW_AUTOSIZE);
-			imshow("Original", gray_image);
-			waitKey(0);
+		imshow(WIN_3_NAME, binaryImage * 255);
 
-			// Alvorens bewerkingen uit te voeren op het beeld converteren we deze
-			// naar een Mat object met grotere diepte (depth), t.w. 16 bits signed
-			Mat binary16S;
-			binaryImage.convertTo(binary16S, CV_16S);
+		Mat cvtBin;
+		binaryImage.convertTo(cvtBin, CV_16S);
 
-			// functie labelBLOBs doet hetzelfde als Label Blobs in VisionLab; input is een
-			// binair beeld. Output is een image waarin alle pixels van elke blob voorzien zijn van 
-			// volgnummer.
-			Mat labeledImage;
-			cout << "Total number of BLOBs " << labelBLOBs(binary16S, labeledImage) << endl;
+		convertedFrame = cvtBin;
+		converted = true;
 
-			// functie show16SImageStretch beeld elke image af op 0 - 255 zodat je vrijwel altijd
-			// wel een redelijke view krijgt op de data.
-			// (show16SImageClip laat alle pixels met een waarde tussen 0 en 255 zien. Waardes onder 0
-			// worden op 0 afgebeeld, waardes boven 255 worden op 255 afgebeeld.)
-			show16SImageStretch(labeledImage, "Labeled Image");
-
-			imwrite("c:\\dump\\labeledImage.jpg", labeledImage);
-
-			// labelBLOBsInfo: met deze functie kun je ook BLOBs labelen. De functie geeft van 
-			// alle BLOBs de volgende informatie terug:
-			// - coordinaten van het eerste pixel van de BLOB
-			// - coordinaten van het zwaartepunt van de BLOB.
-			// - area van de BLOB
-			Mat labeledImage2;
-			vector<Point2d*> firstpixelVec2;
-			vector<Point2d*> posVec2;
-			vector<int> areaVec2;
-			labelBLOBsInfo(binary16S, labeledImage2, firstpixelVec2, posVec2, areaVec2);
-			show16SImageStretch(labeledImage2, "Labeled Image 2");
-
-			cout << endl << "*******************************************" << endl << endl;
-
-			// Toon alle informatie in de console 
-			cout << "Aantal gevonden BLOBs = " << firstpixelVec2.size() << endl;
-			for (int i = 0; i < firstpixelVec2.size(); i++) {
-				cout << "BLOB " << i + 1 << endl;
-				cout << "firstpixel = (" << firstpixelVec2[i]->x << "," << firstpixelVec2[i]->y << ")" << endl;
-				cout << "centre = (" << posVec2[i]->x << "," << posVec2[i]->y << ")" << endl;
-				cout << "area = " << areaVec2[i] << endl;
-			}
-
-			cout << endl << "*******************************************" << endl << endl;
-
-
-		}
-
-		// Het tonen van grijswaarde beeld
-		imshow("MyVideo", frame);
-
-
-
-		//  Wacht 30 ms op ESC-toets. Als ESC-toets is ingedrukt verlaat dan de loop
-		if (waitKey(1) == 27)
+		if (waitKey(1) == VK_ESCAPE)
 		{
 			cout << "esc key is pressed by user" << endl;
+			g_SnapshotThreadRunning = false;
+			while (!blobshowThread.joinable())
+			{
+				cout << "cannot exit thread" << endl;
+			}
+			blobshowThread.join();
+
 			break;
 		}
 	}
