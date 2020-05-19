@@ -1,20 +1,38 @@
-// MAT_Objects.cpp : This file contains the 'main' function. Program execution begins and ends there.
-//
+// Demo Zelf Mat-objecten maken
+// Typische toepassing is het maken kernels t.b.v. filtering
+// Uitleg zelf Mat-objecten creeeren: http://docs.opencv.org/doc/tutorials/core/mat_the_basic_image_container/mat_the_basic_image_container.html
+// Jan Oostindie, dd 9-2-2015
 
+#include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv/cv.h>
 #include <iostream>
+#include <string>
 
-int main()
+using namespace cv;
+using namespace std;
+
+int main(int argc, char** argv)
 {
-    std::cout << "Hello World!\n";
+	Mat matrix1 = Mat::ones(3, 3, CV_32F);
+	cout << "Eenheidsmatrix = " << endl << " " << matrix1 << endl << endl;
+
+	Mat matrix2 = (Mat_<double>(2, 4) << 1.0, 2.3, 8.1, 6.7, -90.2, 1.0 / 9, -45.78, 90.0);
+	cout << "Een matrix met reeele getallen = " << endl << " " << matrix2 << endl << endl;
+
+	Mat Z = Mat::zeros(3, 3, CV_8UC1);
+	cout << "Nul matrix = " << endl << " " << Z << endl << endl;
+
+	// Een 2 x 2 matrix
+	Mat matrix3 = (Mat_<double>(2, 2) << 1.0, 2.3, 8.1, 6.7);
+	cout << "Een 2 x 2 matrix  = " << endl << " " << matrix3 << endl << endl;
+
+	// Genormeerde matrix
+	Mat matrix4 = (1 / (1.0 + 2.3 + 8.1 + 6.7)) * (Mat_<double>(2, 2) << 1.0, 2.3, 8.1, 6.7);
+	cout << "Voorgaande matrix genormeerd = " << endl << " " << matrix4 << endl << endl;
+
+	string dummy;
+	getline(cin, dummy);
+
+	return 0;
 }
-
-// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
-// Debug program: F5 or Debug > Start Debugging menu
-
-// Tips for Getting Started: 
-//   1. Use the Solution Explorer window to add/manage files
-//   2. Use the Team Explorer window to connect to source control
-//   3. Use the Output window to see build output and other messages
-//   4. Use the Error List window to view errors
-//   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
-//   6. In the future, to open this project again, go to File > Open > Project and select the .sln file
