@@ -7,7 +7,6 @@
 #include <iostream>
 #include <string>
 #include <Windows.h>
-#include "BlobDetection.h"
 #include "blobdetectionavans.h"
 
 #include <sstream>
@@ -27,7 +26,7 @@ bool g_SnapshotThreadRunning = true;
 bool converted = false;
 Mat convertedFrame;
 
-void show_thread()
+void detection_thread()
 {
 	while (g_SnapshotThreadRunning)
 	{
@@ -91,7 +90,7 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 
-	std::thread blobshowThread(show_thread);
+	std::thread blobshowThread(detection_thread);
 
 	double dWidth = cap.get(CV_CAP_PROP_FRAME_WIDTH);
 	double dHeight = cap.get(CV_CAP_PROP_FRAME_HEIGHT);
