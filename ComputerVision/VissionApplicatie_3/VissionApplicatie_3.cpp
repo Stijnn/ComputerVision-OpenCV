@@ -10,55 +10,44 @@ using namespace std;
 
 int main(int argc, char** argv)
 {
-    VideoCapture cap(1); //capture the video from webcam
+    VideoCapture cap(1);
 
-    if (!cap.isOpened())  // if not success, exit program
+    if (!cap.isOpened())
     {
         cout << "Cannot open the web cam" << endl;
         return -1;
     }
 
-    namedWindow("Control", CV_WINDOW_AUTOSIZE); //create a window called "Control"
+    namedWindow("Control", CV_WINDOW_AUTOSIZE);
 
-    int iLowH = 170;
-    int iHighH = 179;
+    int lowHue      =   170;
+    int highHue     =   179;
+    int lowSat      =   150;
+    int highSat     =   255;
+    int lowVal      =   60;
+    int highVal     =   255;
 
-    int iLowS = 150;
-    int iHighS = 255;
+    createTrackbar("Low Hue", "Control", &lowHue, 179);
+    createTrackbar("High Hue", "Control", &highHue, 179);
 
-    int iLowV = 60;
-    int iHighV = 255;
+    createTrackbar("Low Saturation", "Control", &lowSat, 255);
+    createTrackbar("High Saturation", "Control", &highSat, 255);
 
-    //Create trackbars in "Control" window
-    createTrackbar("LowH", "Control", &iLowH, 179); //Hue (0 - 179)
-    createTrackbar("HighH", "Control", &iHighH, 179);
+    createTrackbar("Low Value", "Control", &lowVal, 255);
+    createTrackbar("High Value", "Control", &highVal, 255);
 
-    createTrackbar("LowS", "Control", &iLowS, 255); //Saturation (0 - 255)
-    createTrackbar("HighS", "Control", &iHighS, 255);
+    int lastX = -1;
+    int lastY = -1;
 
-    createTrackbar("LowV", "Control", &iLowV, 255);//Value (0 - 255)
-    createTrackbar("HighV", "Control", &iHighV, 255);
-
-    int iLastX = -1;
-    int iLastY = -1;
-
-    //Capture a temporary image from the camera
     Mat imgTmp;
     cap.read(imgTmp);
-
-    //Create a black image with the size as the camera output
-    Mat imgLines = Mat::zeros(imgTmp.size(), CV_8UC3);;
-
 
     while (true)
     {
         Mat imgOriginal;
+        bool bSuccess = cap.read(imgOriginal);
 
-        bool bSuccess = cap.read(imgOriginal); // read a new frame from video
-
-
-
-        if (!bSuccess) //if not success, break loop
+        if (!bSuccess)
         {
             cout << "Cannot read a frame from video stream" << endl;
             break;
@@ -66,45 +55,40 @@ int main(int argc, char** argv)
 
         Mat imgHSV;
 
-        cvtColor(imgOriginal, imgHSV, COLOR_BGR2HSV); //Convert the captured frame from BGR to HSV
+        cvtColor(imgOriginal, imgHSV, COLOR_BGR2HSV);
 
         Mat imgThresholded;
 
-        inRange(imgHSV, Scalar(iLowH, iLowS, iLowV), Scalar(iHighH, iHighS, iHighV), imgThresholded); //Threshold the image
+        inRange(imgHSV, Scalar(lowHue, lowSat, lowVal), Scalar(highHue, highSat, highVal), imgThresholded);
 
-        //morphological opening (removes small objects from the foreground)
-        erode(imgThresholded, imgThresholded, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)));
-        dilate(imgThresholded, imgThresholded, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)));
+        erode   (   imgThresholded, imgThresholded, getStructuringElement(MORPH_ELLIPSE, Size(5, 5))    );
+        dilate  (   imgThresholded, imgThresholded, getStructuringElement(MORPH_ELLIPSE, Size(5, 5))    );
 
-        //morphological closing (removes small holes from the foreground)
-        dilate(imgThresholded, imgThresholded, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)));
-        erode(imgThresholded, imgThresholded, getStructuringElement(MORPH_ELLIPSE, Size(5, 5)));
+        dilate  (   imgThresholded, imgThresholded, getStructuringElement(MORPH_ELLIPSE, Size(5, 5))    );
+        erode   (   imgThresholded, imgThresholded, getStructuringElement(MORPH_ELLIPSE, Size(5, 5))    );
 
-        //Calculate the moments of the thresholded image
         Moments oMoments = moments(imgThresholded);
 
         double dM01 = oMoments.m01;
         double dM10 = oMoments.m10;
         double dArea = oMoments.m00;
 
-        // if the area <= 10000, I consider that the there are no object in the image and it's because of the noise, the area is not zero 
         if (dArea > 10000)
         {
-            //calculate the position of the ball
             int posX = dM10 / dArea;
             int posY = dM01 / dArea;
 
             circle(imgOriginal, Point(posX, posY), 25, Scalar(1, 1, 1, 1));
 
-            iLastX = posX;
-            iLastY = posY;
+            lastX = posX;
+            lastY = posY;
         }
 
-        imshow("Thresholded Image", imgThresholded); //show the thresholded image
+        imshow("Thresholded Image", imgThresholded);
 
-        imshow("Original", imgOriginal); //show the original image
+        imshow("Original", imgOriginal);
 
-        if (waitKey(30) == 27) //wait for 'esc' key press for 30ms. If 'esc' key is pressed, break loop
+        if (waitKey(30) == 27)
         {
             cout << "esc key is pressed by user" << endl;
             break;
