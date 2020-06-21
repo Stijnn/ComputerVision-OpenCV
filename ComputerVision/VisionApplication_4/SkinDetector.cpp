@@ -15,7 +15,7 @@ SkinDetector::SkinDetector(void) {
 
 	calibrated = false;
 
-	skinColorSamplerRectangle1, skinColorSamplerRectangle2;
+	skinColorSamplerRectangleLeft1, skinColorSamplerRectangleLeft2;
 }
 
 void SkinDetector::drawSkinColorSampler(Mat input) {
@@ -24,18 +24,33 @@ void SkinDetector::drawSkinColorSampler(Mat input) {
 	int rectangleSize = 20;
 	Scalar rectangleColor = Scalar(255, 0, 255);
 
-	skinColorSamplerRectangle1 = Rect(frameWidth / 5, frameHeight / 2, rectangleSize, rectangleSize);
-	skinColorSamplerRectangle2 = Rect(frameWidth / 5, frameHeight / 3, rectangleSize, rectangleSize);
+	skinColorSamplerRectangleLeft1 = Rect(frameWidth / 5, frameHeight / 2, rectangleSize, rectangleSize);
+	skinColorSamplerRectangleLeft2 = Rect(frameWidth / 5, frameHeight / 3, rectangleSize, rectangleSize);
+
+	skinColorSamplerRectangleRight1 = Rect(frameWidth / 5 * 4, frameHeight / 2, rectangleSize, rectangleSize);
+	skinColorSamplerRectangleRight2 = Rect(frameWidth / 5 * 4, frameHeight / 3, rectangleSize, rectangleSize);
 
 	rectangle(
 		input,
-		skinColorSamplerRectangle1,
+		skinColorSamplerRectangleLeft1,
 		rectangleColor
 	);
 
 	rectangle(
 		input,
-		skinColorSamplerRectangle2,
+		skinColorSamplerRectangleLeft2,
+		rectangleColor
+	);
+
+	rectangle(
+		input,
+		skinColorSamplerRectangleRight1,
+		rectangleColor
+	);
+
+	rectangle(
+		input,
+		skinColorSamplerRectangleRight2,
 		rectangleColor
 	);
 }
@@ -45,8 +60,8 @@ void SkinDetector::calibrate(Mat input) {
 	Mat hsvInput;
 	cvtColor(input, hsvInput, CV_BGR2HSV);
 
-	Mat sample1 = Mat(hsvInput, skinColorSamplerRectangle1);
-	Mat sample2 = Mat(hsvInput, skinColorSamplerRectangle2);
+	Mat sample1 = Mat(hsvInput, skinColorSamplerRectangleLeft1);
+	Mat sample2 = Mat(hsvInput, skinColorSamplerRectangleLeft2);
 
 	Mat rgbimg;
 	Mat rgbimg2;

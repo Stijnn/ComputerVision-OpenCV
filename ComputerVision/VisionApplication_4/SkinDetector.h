@@ -23,7 +23,7 @@ private:
 
 	bool calibrated = false;
 
-	Rect skinColorSamplerRectangle1, skinColorSamplerRectangle2;
+	Rect skinColorSamplerRectangleLeft1, skinColorSamplerRectangleLeft2, skinColorSamplerRectangleRight1, skinColorSamplerRectangleRight2;
 
 	void calculateThresholds(Mat sample1, Mat sample2);
 	void performOpening(Mat binaryImage, int structuralElementShapde, Point structuralElementSize);

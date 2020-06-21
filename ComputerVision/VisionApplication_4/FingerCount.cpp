@@ -134,22 +134,16 @@ Mat FingerCount::findFingersCount(Mat input_image, Mat frame) {
 	}
 
 	// we draw what found on the returned image 
-	drawContours(contours_image, contours, biggest_contour_index, color_green, 2, 8, hierarchy);
-	//polylines(contours_image, hull_points, true, color_blue);
-	//rectangle(contours_image, bounding_rectangle.tl(), bounding_rectangle.br(), color_red, 2, 8, 0);
+	drawContours(contours_image, contours, biggest_contour_index, color_blue, 2, 8, hierarchy);
 	circle(contours_image, center_bounding_rect, 5, color_purple, 2, 8);
 
 	this->position = center_bounding_rect;
-	//drawVectorPoints(contours_image, filtered_start_points, color_blue, true);
-	//drawVectorPoints(contours_image, filtered_far_points, color_red, true);
-	//drawVectorPoints(contours_image, filtered_finger_points, color_yellow, false);
 	putText(contours_image, to_string(filtered_finger_points.size()), center_bounding_rect, FONT_HERSHEY_PLAIN, 3, color_purple);
 
 	// and on the starting frame
-	//drawContours(frame, contours, biggest_contour_index, color_green, 2, 8, hierarchy);
-	//circle(frame, center_bounding_rect, 5, color_purple, 2, 8);
-	//drawVectorPoints(frame, filtered_finger_points, color_yellow, false);
-	//putText(frame, to_string(filtered_finger_points.size()), center_bounding_rect, FONT_HERSHEY_PLAIN, 3, color_purple);
+	drawContours(frame, contours, biggest_contour_index, color_red, 2, 8, hierarchy);
+	circle(frame, center_bounding_rect, 5, color_purple, 2, 8);
+
 
 	return contours_image;
 }
